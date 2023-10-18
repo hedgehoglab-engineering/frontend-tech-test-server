@@ -1,7 +1,20 @@
 import { eventHandler, readBody, createError } from 'h3';
 import { addUser, findUser, findUserByEmail, validateUserCreation } from '../store/users.js';
+import { ensureAuthenticated } from '../auth.js';
 
 export default eventHandler(async (event) => {
+    try {
+        ensureAuthenticated(event);
+    } catch (e) {
+        return createError({
+            message: 'unauthorized',
+            statusCode: 401,
+            data: {
+                message: 'Unauthorized',
+            },
+        });
+    }
+
     const userData = await readBody(event);
 
     if (findUserByEmail(userData?.email)) {

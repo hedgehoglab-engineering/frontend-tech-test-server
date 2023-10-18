@@ -1,5 +1,5 @@
 import { eventHandler, readBody, createError } from 'h3';
-import { findUser, findUserByAuthCredentials } from '../store/users.js';
+import { findUserByAuthCredentials, getUserToken } from '../store/users.js';
 
 export default eventHandler(async (event) => {
     const body = await readBody(event);
@@ -31,5 +31,7 @@ export default eventHandler(async (event) => {
         });
     }
 
-    return findUser(user.id);
+    return {
+        token: getUserToken(user.id),
+    };
 });

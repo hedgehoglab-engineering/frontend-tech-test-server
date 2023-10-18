@@ -1,5 +1,5 @@
 {
-  "name": "hedgehoglab-frontend-tech-test-server",
+  "name": "@hedgehoglab/frontend-tech-test-server",
   "type": "module",
   "version": "1.0.0",
   "main": "dist/index.js",

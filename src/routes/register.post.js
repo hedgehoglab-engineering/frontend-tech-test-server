@@ -16,8 +16,6 @@ export default eventHandler(async (event) => {
     try {
         const validatedData = validateUserRegistration(userData);
 
-        console.log({ validatedData });
-
         const user = addUser(validatedData);
 
         return findUser(user.id);

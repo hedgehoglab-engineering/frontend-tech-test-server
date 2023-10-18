@@ -23,12 +23,13 @@ const userFactory = () => {
         email: faker.internet.email(),
         display_picture: `https://i.pravatar.cc/150?u=${ uuid }`,
         password: randomUUID(),
+        token: randomUUID(),
     };
 };
 
 const userTransformer = (user) => {
     // eslint-disable-next-line no-unused-vars
-    const { password, ...rest } = user;
+    const { password, token, ...rest } = user;
 
     return rest;
 };
@@ -126,9 +127,20 @@ export const addUser = (user) => {
     return newUser;
 };
 
-export const findUser = (id) => {
+export const getUserToken = (id) => {
     const user = users
         .find((user) => user.id === id);
+
+    if (!user) {
+        return;
+    }
+
+    return user.token;
+};
+
+export const findUser = (id) => {
+    const user = users
+        .find((user) => String(user.id) === String(id));
 
     if (!user) {
         return;
@@ -151,6 +163,17 @@ export const findUserByAuthCredentials = ({ email, password }) => {
 export const findUserByEmail = (email) => {
     const user = users
         .find((user) => user.email === email);
+
+    if (!user) {
+        return;
+    }
+
+    return userTransformer(user);
+};
+
+export const findUserByToken = (token) => {
+    const user = users
+        .find((user) => user.token === token);
 
     if (!user) {
         return;
