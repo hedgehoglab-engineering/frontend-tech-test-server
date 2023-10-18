@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import { eventHandler, readBody, createError, getQuery, sendNoContent, createRouter, createApp, toNodeListener } from 'h3';
+import { eventHandler, readBody, createError, getHeaders, getQuery, sendNoContent, createRouter, createApp, toNodeListener } from 'h3';
 import { listen } from 'listhen';
 import { randomUUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 
 const VALIDATION_EXCEPTION = 'VALIDATION_EXCEPTION';
+const UNAUTHENTICATED_EXCEPTION = 'UNAUTHENTICATED_EXCEPTION';
 
 const modelSchema = {
     id: 'string',
@@ -27,12 +28,13 @@ const userFactory = () => {
         email: faker.internet.email(),
         display_picture: `https://i.pravatar.cc/150?u=${ uuid }`,
         password: randomUUID(),
+        token: randomUUID(),
     };
 };
 
 const userTransformer = (user) => {
     // eslint-disable-next-line no-unused-vars
-    const { password, ...rest } = user;
+    const { password, token, ...rest } = user;
 
     return rest;
 };
@@ -130,9 +132,20 @@ const addUser = (user) => {
     return newUser;
 };
 
-const findUser = (id) => {
+const getUserToken = (id) => {
     const user = users
         .find((user) => user.id === id);
+
+    if (!user) {
+        return;
+    }
+
+    return user.token;
+};
+
+const findUser = (id) => {
+    const user = users
+        .find((user) => String(user.id) === String(id));
 
     if (!user) {
         return;
@@ -155,6 +168,17 @@ const findUserByAuthCredentials = ({ email, password }) => {
 const findUserByEmail = (email) => {
     const user = users
         .find((user) => user.email === email);
+
+    if (!user) {
+        return;
+    }
+
+    return userTransformer(user);
+};
+
+const findUserByToken = (token) => {
+    const user = users
+        .find((user) => user.token === token);
 
     if (!user) {
         return;
@@ -212,7 +236,9 @@ var loginPost = eventHandler(async (event) => {
         });
     }
 
-    return findUser(user.id);
+    return {
+        token: getUserToken(user.id),
+    };
 });
 
 var registerPost = eventHandler(async (event) => {
@@ -230,8 +256,6 @@ var registerPost = eventHandler(async (event) => {
     try {
         const validatedData = validateUserRegistration(userData);
 
-        console.log({ validatedData });
-
         const user = addUser(validatedData);
 
         return findUser(user.id);
@@ -245,7 +269,41 @@ var registerPost = eventHandler(async (event) => {
     }
 });
 
+const throwUnauthenticated = () => {
+    throw new Error(UNAUTHENTICATED_EXCEPTION);
+};
+
+const getBearerToken = (event) => {
+    const headers = getHeaders(event);
+
+    const authHeader = headers.authorization || '';
+
+    return authHeader.replace('Bearer ', '');
+};
+
+const ensureAuthenticated = (event) => {
+    const bearer = getBearerToken(event);
+
+    const user = findUserByToken(bearer);
+
+    if (!user) {
+        throwUnauthenticated();
+    }
+};
+
 var usersGet = eventHandler(async (event) => {
+    try {
+        ensureAuthenticated(event);
+    } catch (e) {
+        return createError({
+            message: 'unauthorized',
+            statusCode: 401,
+            data: {
+                message: 'Unauthorized',
+            },
+        });
+    }
+
     const { page= 1, per_page = 6 } = getQuery(event);
 
     return getUsersPagination({
@@ -255,6 +313,18 @@ var usersGet = eventHandler(async (event) => {
 });
 
 var usersPost = eventHandler(async (event) => {
+    try {
+        ensureAuthenticated(event);
+    } catch (e) {
+        return createError({
+            message: 'unauthorized',
+            statusCode: 401,
+            data: {
+                message: 'Unauthorized',
+            },
+        });
+    }
+
     const userData = await readBody(event);
 
     if (findUserByEmail(userData?.email)) {
@@ -283,6 +353,18 @@ var usersPost = eventHandler(async (event) => {
 });
 
 var usersDelete = eventHandler(async (event) => {
+    try {
+        ensureAuthenticated(event);
+    } catch (e) {
+        return createError({
+            message: 'unauthorized',
+            statusCode: 401,
+            data: {
+                message: 'Unauthorized',
+            },
+        });
+    }
+
     const { id } = event.context.params;
 
     const user = findUser(id);
@@ -293,23 +375,67 @@ var usersDelete = eventHandler(async (event) => {
         });
     }
 
+    const bearer = getBearerToken(event);
+    const currentUser = findUserByToken(bearer);
+
+    if (currentUser.id === user.id) {
+        return createError({
+            statusCode: 422,
+            data: {
+                message: 'Cannot delete own user',
+            },
+        });
+    }
+
     deleteUser(user.id);
 
     sendNoContent(event);
 });
 
-const router = createRouter()
-    .post('/api/login', loginPost)
-    .post('/api/register', registerPost)
-    .get('/api/users', usersGet)
-    .post('/api/users', usersPost)
-    .delete('/api/users/:id', usersDelete);
+(async () => {
+    const router = createRouter()
+        .post('/api/login', loginPost)
+        .post('/api/register', registerPost)
+        .get('/api/users', usersGet)
+        .post('/api/users', usersPost)
+        .delete('/api/users/:id', usersDelete);
 
-const app = createApp();
+    const app = createApp();
 
-app.use(router);
+    app.use(router);
 
-listen(toNodeListener(app), {
-    port: 3002,
-    name: 'hedgehog lab tech test api',
-});
+    const { url } = await listen(toNodeListener(app), {
+        port: 3002,
+        name: 'hedgehog lab tech test api',
+    });
+
+    const endpoints = [
+        {
+            method: 'POST',
+            endpoint: `${ url }api/register`,
+            'requires auth?': false,
+        },
+        {
+            method: 'POST',
+            endpoint: `${ url }api/login`,
+            'requires auth?': false,
+        },
+        {
+            method: 'GET',
+            endpoint: `${ url }api/users`,
+            'requires auth?': true,
+        },
+        {
+            method: 'POST',
+            endpoint: `${ url }api/users`,
+            'requires auth?': true,
+        },
+        {
+            method: 'DELETE',
+            endpoint: `${ url }api/users/:id`,
+            'requires auth?': true,
+        },
+    ];
+
+    console.table(endpoints);
+})();
