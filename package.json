@@ -21,7 +21,7 @@
     "lint": "eslint .",
     "start": "node dist/index.js",
     "start:dev": "node src/index.js",
-    "release": "bumpp package.json --commit --push --tag && yarn publish --non-interactive --access public"
+    "release": "bumpp package.json --commit --push --tag && npm publish --non-interactive --access public --registry=https://registry.npmjs.org/"
   },
   "dependencies": {
     "@faker-js/faker": "^8.2.0",
