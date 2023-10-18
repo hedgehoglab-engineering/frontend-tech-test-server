@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { createApp, toNodeListener, createRouter } from 'h3';
 import { listen } from 'listhen';
 import loginPost from './routes/login.post.js';

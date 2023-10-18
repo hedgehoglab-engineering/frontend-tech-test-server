@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { eventHandler, readBody, createError, getQuery, sendNoContent, createRouter, createApp, toNodeListener } from 'h3';
 import { listen } from 'listhen';
 import { randomUUID } from 'node:crypto';
