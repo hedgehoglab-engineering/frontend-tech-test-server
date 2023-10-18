@@ -1,0 +1,22 @@
+{
+  "name": "reqres-persisted-server",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node dist/index.js",
+    "start:dev": "node src/index.js"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.2.0",
+    "h3": "^1.8.2",
+    "listhen": "^1.5.5",
+    "rollup": "^4.1.4"
+  },
+  "devDependencies": {
+    "@hedgehoglab/eslint-config": "^0.1.8",
+    "eslint": "^8.51.0"
+  }
+}
