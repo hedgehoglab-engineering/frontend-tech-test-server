@@ -1,9 +1,12 @@
 {
-  "name": "reqres-persisted-server",
+  "name": "hedgehoglab-frontend-tech-test-server",
   "type": "module",
   "version": "1.0.0",
   "main": "dist/index.js",
   "license": "MIT",
+  "bin": {
+    "hedgehoglab-frontend-tech-test-server": "dist/index.js"
+  },
   "scripts": {
     "lint": "eslint .",
     "start": "node dist/index.js",
