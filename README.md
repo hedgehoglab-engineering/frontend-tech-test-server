@@ -1,4 +1,4 @@
-![hedgehog lab logo](./assets/images/hhl-logo-dark.png)
+![hedgehog lab logo](https://github.com/hedgehoglab-engineering/frontend-tech-test-server/raw/main/assets/images/hhl-logo-dark.png)
 
 # @hedgehoglab/frontend-tech-test-server
 
