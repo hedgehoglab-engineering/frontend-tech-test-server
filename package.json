@@ -1,6 +1,6 @@
 {
   "name": "@hedgehoglab/frontend-tech-test-server",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Temporarily persistent server for the hedgehog lab frontend technical test",
   "keywords": [
     "hedgehoglab"
@@ -20,7 +20,8 @@
     "build": "rollup -c",
     "lint": "eslint .",
     "start": "node dist/index.js",
-    "start:dev": "node src/index.js"
+    "start:dev": "node src/index.js",
+    "release": "bumpp package.json --commit --push --tag && yarn publish --access public"
   },
   "dependencies": {
     "@faker-js/faker": "^8.2.0",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@hedgehoglab/eslint-config": "^0.1.8",
+    "bumpp": "^9.2.0",
     "eslint": "^8.51.0"
   }
 }
