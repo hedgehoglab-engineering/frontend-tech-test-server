@@ -1,12 +1,21 @@
 {
   "name": "@hedgehoglab/frontend-tech-test-server",
-  "type": "module",
-  "version": "1.0.0",
-  "main": "dist/index.js",
+  "version": "0.1.0",
+  "description": "Temporarily persistent server for the hedgehog lab frontend technical test",
+  "keywords": [
+    "hedgehoglab"
+  ],
+  "homepage": "https://github.com/hedgehoglab-engineering/frontend-tech-test-server",
   "license": "MIT",
+  "author": "Sam Turrell <sam.turrell@hedgehoglab.com>",
+  "type": "module",
+  "main": "dist/index.js",
   "bin": {
     "hedgehoglab-frontend-tech-test-server": "dist/index.js"
   },
+  "files": [
+    "./dist"
+  ],
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint .",
