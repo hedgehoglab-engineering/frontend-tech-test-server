@@ -8,8 +8,8 @@ This package provides a simple temporarily persistent server to accompany the te
 
 Running the following command will start the server on your local machine.
 
-```js
-npx @hedgehoglab/frontend-tech-test-server
+```bash
+npx @hedgehoglab/frontend-tech-test-server@latest
 ```
 
 ## Documentation
