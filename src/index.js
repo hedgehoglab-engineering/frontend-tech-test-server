@@ -65,5 +65,6 @@ import usersDelete from './routes/users.delete.js';
         },
     ];
 
+    // eslint-disable-next-line no-console
     console.table(endpoints);
 })();

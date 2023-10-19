@@ -14,7 +14,7 @@ export default eventHandler(async (event) => {
         if (!body?.password) {
             errors.password = ['This field is required'];
         }
-        
+
         return createError({
             statusCode: 422,
             data: {

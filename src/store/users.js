@@ -190,13 +190,15 @@ export const deleteUser = (id) => {
 };
 
 export const getUsersPagination = ({ per_page = 5, page } = {}) => {
+    const data = users
+        .slice((page - 1) * per_page, per_page * page)
+        .map(userTransformer);
+
     return {
         page,
         per_page,
         total: users.length,
         total_pages: Math.ceil(users.length / per_page),
-        data: users
-            .slice((page - 1) * per_page, per_page)
-            .map(userTransformer),
+        data,
     };
 };
