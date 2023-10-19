@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { createApp, createRouter, toNodeListener } from 'h3';
+import { createApp, createRouter, toNodeListener, eventHandler, handleCors } from 'h3';
 import { listen } from 'listhen';
 import loginPost from './routes/login.post.js';
 import registerPost from './routes/register.post.js';
@@ -17,6 +17,18 @@ import usersDelete from './routes/users.delete.js';
         .delete('/api/users/:id', usersDelete);
 
     const app = createApp();
+
+    app.use(eventHandler((event) => {
+        handleCors(event, {
+            origin: '*',
+            methods: [
+                'GET',
+                'POST',
+                'OPTIONS',
+                'DELETE',
+            ],
+        });
+    }));
 
     app.use(router);
 
