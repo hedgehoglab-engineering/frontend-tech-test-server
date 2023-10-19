@@ -5,13 +5,20 @@ export default eventHandler(async (event) => {
     const body = await readBody(event);
 
     if (!body?.email || !body?.password) {
+        const errors = {};
+
+        if (!body?.email) {
+            errors.email = ['This field is required'];
+        }
+
+        if (!body?.password) {
+            errors.password = ['This field is required'];
+        }
+        
         return createError({
             statusCode: 422,
             data: {
-                errors: {
-                    email: ['This field is required'],
-                    password: ['This field is required'],
-                },
+                errors,
             },
         });
     }
