@@ -1,6 +1,6 @@
 {
   "name": "@hedgehoglab/frontend-tech-test-server",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Temporarily persistent server for the hedgehog lab frontend technical test",
   "keywords": [
     "hedgehoglab"
